@@ -1,0 +1,87 @@
+pipeline {
+    agent any
+    
+      triggers {
+        GenericTrigger(
+         genericVariables: [
+          [key: 'action', value: '$.action'],
+          [key: 'pr_num', value: '$.number'],
+          [key: 'pr_url', value: '$.pull_request.html_url'],
+          [key: 'ref', value: '$.pull_request.head.ref'],
+          [key: 'sha', value: '$.pull_request.head.sha'],
+          [key: 'repo', value: '$.pull_request.head.repo.full_name']
+         ],
+    
+         causeString: 'Triggered on $ref',
+    
+         token: 'learnenv-socket',
+    
+         printContributedVariables: true,
+         printPostContent: true,
+    
+         silentResponse: false,
+    
+         regexpFilterText: '$action',
+         regexpFilterExpression: '(opened|synchronize|ready_for_review)'
+        )
+     }
+    
+      parameters {
+        string(name: 'BRANCH', defaultValue: 'main', description: 'Please enter your branch')
+      }
+
+    environment {
+        GOPATH = "${WORKSPACE}"
+        REFR = "$ref"
+    }
+    stages {
+        stage('Set GitHub status to pending and set branch') {
+          when { 
+              expression { env.action != null }
+           }
+          steps {
+              script {
+                env.BRANCH = env.action
+                env.access_token = sh(script: 'aws ssm get-parameter --name access_token --region eu-west-1 --with-decryption | jq .Parameter.Value', , returnStdout: true).trim()
+              }
+              sh 'set +x'
+              sh "curl \"https://api.GitHub.com/repos/$env.repo/statuses/$env.sha?access_token=$env.access_token\" -H \"Content-Type: application/json\" -X POST -d \"{\\\"state\\\": \\\"pending\\\",\\\"context\\\": \\\"continuous-integration/jenkins\\\", \\\"description\\\": \\\"Jenkins\\\", \\\"target_url\\\": \\\"https://jenkins.alexbaily.com:8080/\\\"}\""
+          }
+        }
+        stage('Build') {
+            steps {
+                script {
+                    sh "echo $env.BRANCH"
+                    sh 'mkdir -p $GOPATH/src/learnenv-sockets'
+                    sh 'ln -sf $WORKSPACE $GOPATH/src/learnenv-sockets'
+                    sh 'go get -d -v ./...'
+                    sh 'go install -v ./...'
+                }
+            }
+        }
+        stage('UnitTest') {
+            steps {
+                script {
+                    sh 'go test'
+                }
+            }
+        }
+        stage('Build-Image') {
+            steps {
+                script {
+                    def siteImage = docker.build("alexbaily/learnenv-sockets:${env.BUILD_ID}")
+                    siteImage.inside {
+                        sh 'echo "Inside the container"'
+                    }
+                    siteImage.push("${env.BUILD_ID}")
+                } 
+            }
+        }
+    }
+    post {
+        success {
+               sh 'set +x'
+               sh "curl \"https://api.GitHub.com/repos/$env.repo/statuses/$env.sha?access_token=bdf985bf7a1538d123dea287a996cee26d4fa101\" -H \"Content-Type: application/json\" -X POST -d \"{\\\"state\\\": \\\"success\\\",\\\"context\\\": \\\"continuous-integration/jenkins\\\", \\\"description\\\": \\\"Jenkins\\\", \\\"target_url\\\": \\\"https://jenkins.alexbaily.com/\\\"}\""
+            }
+    }
+}
