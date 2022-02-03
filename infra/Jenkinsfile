@@ -63,7 +63,7 @@
                     ).trim()
                     echo "${TF_PLAN_OUTPUT}"
                     }
-                    sh 'curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/AlexBaily/learnenv-infra/issues/$env.pr_num/comments\" -H \"Accept: application/vnd.github.v3+json\" -X POST -d \"{"body":"$env.TF_PLAN_OUTPUT"}\"'
+                    sh 'curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/AlexBaily/learnenv-infra/issues/$pr_num/comments\" -H \"Accept: application/vnd.github.v3+json\" -X POST -d \"{"body":"$TF_PLAN_OUTPUT"}\"'
                 }
             }
         }
