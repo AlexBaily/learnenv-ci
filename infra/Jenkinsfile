@@ -34,7 +34,6 @@
             GOPATH = "${WORKSPACE}"
             REFR = "$ref"
             GITHUB_TOKEN = credentials('GITHUB_TOKEN')
-            TF_PLAN_OUTPUT = ""
         }
         stages {
             stage('Set GitHub status to pending and set branch.') {
@@ -56,13 +55,8 @@
                 steps {
                     script {
                         env.BRANCH = env.ref
-                                            sh './infra/01.tf-plan.sh'
-                    TF_PLAN_OUTPUT = sh (
-                        script: 'cat $WORKSPACE/output.txt',
-                        returnStdout: true
-                    ).trim()
-                    echo "${TF_PLAN_OUTPUT}"
-                    sh "curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/AlexBaily/learnenv-infra/issues/$pr_num/comments\" -H \"Accept: application/vnd.github.VERSION.text+json\" -X POST -d \"{\"body\":\"${TF_PLAN_OUTPUT}\"}"
+                        sh './infra/01.tf-plan.sh'
+                        sh "curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/AlexBaily/learnenv-infra/issues/$pr_num/comments\" -H \"Accept: application/vnd.github.VERSION.text+json\" -X POST -d \"{@$WORKSPACE/parsed_output.txt}"
                     }
                 }
             }
