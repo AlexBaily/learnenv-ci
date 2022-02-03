@@ -62,7 +62,7 @@
                         returnStdout: true
                     ).trim()
                     echo "${TF_PLAN_OUTPUT}"
-                    sh "curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/AlexBaily/learnenv-infra/issues/$pr_num/comments\" -H \"Accept: application/vnd.github.VERSION.text+json\" -X POST -d \"{\"body\":\"${TF_PLAN_OUTPUT\"}\""
+                    sh "curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/AlexBaily/learnenv-infra/issues/$pr_num/comments\" -H \"Accept: application/vnd.github.VERSION.text+json\" -X POST -d \"{\"body\":\"${TF_PLAN_OUTPUT}\"}"
                     }
                 }
             }
