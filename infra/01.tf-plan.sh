@@ -10,7 +10,7 @@ cd terraform/environmnets/dev/networking/
 
 terraform init
 
-terraform plan > $WORKDIR/output.txt
-sed -i '/.*Refresh.*/d' $WORKDIR/output.tf
+terraform plan > $WORKSPACE/output.txt
+sed -i '/.*Refresh.*/d' $WORKSPACE/output.tf
 
 return 

@@ -57,7 +57,7 @@
                         env.BRANCH = env.ref
                                             sh './infra/01.tf-plan.sh'
                     TF_PLAN_OUTPUT = sh (
-                        script: 'cat $WORKDIR/output.tf',
+                        script: 'cat $WORKSPACE/output.tf',
                         returnStdout: true
                     ).trim()
                     echo "${TF_PLAN_OUTPUT}"
