@@ -12,3 +12,4 @@ terraform init
 
 terraform plan > $WORKSPACE/output.txt
 sed -i '/.*Refresh.*/d' $WORKSPACE/output.txt
+sed -i 's/\\n/\'$'\n''/g' $WORKSPACE/output.txt
