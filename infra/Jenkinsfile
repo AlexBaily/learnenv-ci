@@ -40,10 +40,13 @@
             when { 
                 expression { env.action != null }
             }
+            steps {
                 script {
                     sh 'curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/$env.repo/statuses/$env.sha\" -H \"Content-Type: application/json\" -X POST -d \"{\\\"state\\\": \\\"pending\\\",\\\"context\\\": \\\"continuous-integration/jenkins\\\", \\\"description\\\": \\\"Jenkins\\\", \\\"target_url\\\": \\\"https://jenkins.alexbaily.com:8080/\\\"}\"'
 
                 } 
+            }
+
             }
             stage('Get TF plan output.') {
                 when { 
