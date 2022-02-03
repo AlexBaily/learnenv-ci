@@ -1,0 +1,72 @@
+    pipeline {
+        agent any
+        
+        triggers {
+            GenericTrigger(
+            genericVariables: [
+            [key: 'action', value: '$.action'],
+            [key: 'pr_num', value: '$.number'],
+            [key: 'pr_url', value: '$.pull_request.html_url'],
+            [key: 'ref', value: '$.pull_request.head.ref'],
+            [key: 'sha', value: '$.pull_request.head.sha'],
+            [key: 'repo', value: '$.pull_request.head.repo.full_name']
+            ],
+        
+            causeString: 'Triggered on $ref',
+        
+            token: 'infrastructure',
+        
+            printContributedVariables: true,
+            printPostContent: true,
+        
+            silentResponse: false,
+        
+            regexpFilterText: '$action',
+            regexpFilterExpression: '^(opened|synchronize|ready_for_review)$'
+            )
+        }
+        
+        parameters {
+            string(name: 'BRANCH', defaultValue: 'main', description: 'Please enter your branch')
+        }
+
+        environment {
+            GOPATH = "${WORKSPACE}"
+            REFR = "$ref"
+            GITHUB_TOKEN = credentials('GITHUB_TOKEN')
+        }
+        stages {
+            stage('Set GitHub status to pending and set branch.') {
+            when { 
+                expression { env.action != null }
+            }
+            steps {
+                script {
+                    sh 'curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/$env.repo/statuses/$env.sha\" -H \"Content-Type: application/json\" -X POST -d \"{\\\"state\\\": \\\"pending\\\",\\\"context\\\": \\\"continuous-integration/jenkins\\\", \\\"description\\\": \\\"Jenkins\\\", \\\"target_url\\\": \\\"https://jenkins.alexbaily.com:8080/\\\"}\"'
+
+                } 
+            }
+
+            }
+            stage('Get TF plan output.') {
+                when { 
+                    expression { env.action != null }
+                }
+                steps {
+                    script {
+                        env.BRANCH = env.ref
+                        sh './infra/01.tf-plan.sh'
+                        sh "curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/AlexBaily/learnenv-infra/issues/$pr_num/comments\" -H \"Accept: application/vnd.github.VERSION.text+json\" -X POST -d \"@$WORKSPACE/parsed_output.txt\""
+                    }
+                }
+            }
+        }
+        post {
+            always {
+                cleanWs()
+            }
+            success {
+                sh 'curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/$repo/statuses/$sha\" -H \"Content-Type: application/json\" -X POST -d \"{\\\"state\\\": \\\"success\\\",\\\"context\\\": \\\"continuous-integration/jenkins\\\", \\\"description\\\": \\\"Jenkins\\\", \\\"target_url\\\": \\\"https://jenkins.alexbaily.com:8080/\\\"}\"'
+                }
+        }
+    }
