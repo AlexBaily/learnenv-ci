@@ -40,13 +40,15 @@
             when { 
                 expression { env.action != null }
             }
+                steps {
                     sh 'curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/$env.repo/statuses/$env.sha\" -H \"Content-Type: application/json\" -X POST -d \"{\\\"state\\\": \\\"pending\\\",\\\"context\\\": \\\"continuous-integration/jenkins\\\", \\\"description\\\": \\\"Jenkins\\\", \\\"target_url\\\": \\\"https://jenkins.alexbaily.com:8080/\\\"}\"'
-                }
+
+                } 
             }
             stage('Get TF plan output.') {
-            when { 
-                expression { env.action != null }
-            }
+                when { 
+                    expression { env.action != null }
+                }
                 steps {
                     script {
                         env.BRANCH = env.ref
@@ -59,6 +61,7 @@
                     echo "${TF_PLAN_OUTPUT}"
                 }
             }
+        }
         post {
             success {
                 sh 'curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/$env.repo/statuses/$env.sha\" -H \"Content-Type: application/json\" -X POST -d \"{\\\"state\\\": \\\"success\\\",\\\"context\\\": \\\"continuous-integration/jenkins\\\", \\\"description\\\": \\\"Jenkins\\\", \\\"target_url\\\": \\\"https://jenkins.alexbaily.com:8080/\\\"}\"'
