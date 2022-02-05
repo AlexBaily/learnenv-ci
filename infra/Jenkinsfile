@@ -48,7 +48,7 @@ pipeline {
             }
             steps {
                 script {
-                    JOB_STATUS = 'pending'
+                    env.JOB_STATUS = 'pending'
                     githubPostStatus()
                 } 
             }
@@ -71,11 +71,11 @@ pipeline {
                 cleanWs()
             }
             success {
-                JOB_STATUS = 'success'
+                env.JOB_STATUS = 'success'
                 githubPostStatus()
             }
             failure {
-                JOB_STATUS = 'failure'
+                env.JOB_STATUS = 'failure'
                 githubPostStatus()
             }
         }
