@@ -1,4 +1,9 @@
-    pipeline {
+def githubComment(String )
+
+def githubPostStatus(jobStatus) {
+        sh 'curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/$repo/statuses/$sha\" -H \"Content-Type: application/json\" -X POST -d \"{\\\"state\\\": \\\"$jobStatus\\\",\\\"context\\\": \\\"continuous-integration/jenkins\\\", \\\"description\\\": \\\"Jenkins\\\", \\\"target_url\\\": \\\"https://jenkins.alexbaily.com:8080/\\\"}\"'
+}
+pipeline {
         agent any
         
         triggers {
@@ -42,8 +47,7 @@
             }
             steps {
                 script {
-                    sh 'curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/$env.repo/statuses/$env.sha\" -H \"Content-Type: application/json\" -X POST -d \"{\\\"state\\\": \\\"pending\\\",\\\"context\\\": \\\"continuous-integration/jenkins\\\", \\\"description\\\": \\\"Jenkins\\\", \\\"target_url\\\": \\\"https://jenkins.alexbaily.com:8080/\\\"}\"'
-
+                    githubPostStatus('pending')
                 } 
             }
 
@@ -66,7 +70,10 @@
                 cleanWs()
             }
             success {
-                sh 'curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/$repo/statuses/$sha\" -H \"Content-Type: application/json\" -X POST -d \"{\\\"state\\\": \\\"success\\\",\\\"context\\\": \\\"continuous-integration/jenkins\\\", \\\"description\\\": \\\"Jenkins\\\", \\\"target_url\\\": \\\"https://jenkins.alexbaily.com:8080/\\\"}\"'
-                }
+                githubPostStatus('success')
+            }
+            failure {
+                githubPostStatus('failure')
+            }
         }
     }
