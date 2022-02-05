@@ -71,11 +71,15 @@ pipeline {
                 cleanWs()
             }
             success {
-                env.JOB_STATUS = 'success'
+                script {
+                    env.JOB_STATUS = 'success'
+                }
                 githubPostStatus()
             }
             failure {
-                env.JOB_STATUS = 'failure'
+                script {
+                    env.JOB_STATUS = 'failure'
+                }
                 githubPostStatus()
             }
         }
