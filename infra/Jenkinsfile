@@ -1,6 +1,6 @@
 
-def githubPostStatus(jobStatus) {
-        sh 'curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/$repo/statuses/$sha\" -H \"Content-Type: application/json\" -X POST -d \"{\\\"state\\\": \\\"$jobStatus\\\",\\\"context\\\": \\\"continuous-integration/jenkins\\\", \\\"description\\\": \\\"Jenkins\\\", \\\"target_url\\\": \\\"https://jenkins.alexbaily.com:8080/\\\"}\"'
+def githubPostStatus() {
+        sh 'curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/$repo/statuses/$sha\" -H \"Content-Type: application/json\" -X POST -d \"{\\\"state\\\": \\\"$JOB_STATUS\\\",\\\"context\\\": \\\"continuous-integration/jenkins\\\", \\\"description\\\": \\\"Jenkins\\\", \\\"target_url\\\": \\\"https://jenkins.alexbaily.com:8080/\\\"}\"'
 }
 
 pipeline {
@@ -39,6 +39,7 @@ pipeline {
             GOPATH = "${WORKSPACE}"
             REFR = "$ref"
             GITHUB_TOKEN = credentials('GITHUB_TOKEN')
+            JOB_STATUS = ''
         }
         stages {
             stage('Set GitHub status to pending and set branch.') {
@@ -47,7 +48,8 @@ pipeline {
             }
             steps {
                 script {
-                    githubPostStatus('pending')
+                    JOB_STATUS = 'pending'
+                    githubPostStatus()
                 } 
             }
 
@@ -69,10 +71,12 @@ pipeline {
                 cleanWs()
             }
             success {
-                githubPostStatus('success')
+                JOB_STATUS = 'success'
+                githubPostStatus()
             }
             failure {
-                githubPostStatus('failure')
+                JOB_STATUS = 'failure'
+                githubPostStatus()
             }
         }
     }
