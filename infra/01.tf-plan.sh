@@ -1,8 +1,5 @@
 #!/bin/bash
 
-set -x
-
-
 
 git clone https://github.com/AlexBaily/learnenv-infra
 cd learnenv-infra
@@ -10,11 +7,11 @@ git checkout $BRANCH
 
 cd terraform/environmnets/dev/networking/
 
-terraform init > $WORKSPACE/output.txt
+terraform init &> $WORKSPACE/output.txt
 
 #Check to make sure init ran before trying to run the plan.
 if [ $? == 0 ]; then
-    terraform plan -no-color > $WORKSPACE/output.txt
+    terraform plan -no-color &> $WORKSPACE/output.txt
     sed -i '/.*Refresh.*/d' $WORKSPACE/output.txt
 fi
 
