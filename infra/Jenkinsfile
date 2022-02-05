@@ -60,7 +60,6 @@ pipeline {
                     script {
                         env.BRANCH = env.ref
                         sh './infra/01.tf-plan.sh'
-                        sh "curl -H \"Authorization: token $GITHUB_TOKEN\" \"https://api.GitHub.com/repos/AlexBaily/learnenv-infra/issues/$pr_num/comments\" -H \"Accept: application/vnd.github.VERSION.text+json\" -X POST -d \"@$WORKSPACE/parsed_output.txt\""
                     }
                 }
             }
