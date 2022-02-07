@@ -1,6 +1,6 @@
 
 def githubPostStatus(JOB_STATUS) {
-        sh 'curl -H \\"Authorization: token $GITHUB_TOKEN\\" https://api.GitHub.com/repos/$repo/statuses/$sha -H \'Content-Type: application/json\' -X POST -d \'{\\"state\\": \\"' + "${JOB_STATUS}" + '\\",\\"context\\": \\"continuous-integration/jenkins\\", \\"description\\": \\"Jenkins\\", \\"target_url\\": \\"https://jenkins.alexbaily.com:8080/\\"}\''
+        sh 'curl https://api.GitHub.com/repos/$repo/statuses/$sha -H \"Authorization: token $GITHUB_TOKEN\" -H \'Content-Type: application/json\' -X POST -d \'{\\"state\\": \\"' + "${JOB_STATUS}" + '\\",\\"context\\": \\"continuous-integration/jenkins\\", \\"description\\": \\"Jenkins\\", \\"target_url\\": \\"https://jenkins.alexbaily.com:8080/\\"}\''
 }
 
 pipeline {
