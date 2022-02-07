@@ -59,8 +59,8 @@ pipeline {
                 }
                 steps {
                     script {
-                        env.BRANCH = env.ref
-                        sh './infra/01.tf-plan.sh'
+                        //env.BRANCH = env.ref
+                        //sh './infra/01.tf-plan.sh'
                     }
                 }
             }
