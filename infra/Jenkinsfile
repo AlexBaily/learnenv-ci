@@ -53,17 +53,17 @@ pipeline {
             }
 
             }
-            stage('Get TF plan output.') {
+            /*stage('Get TF plan output.') {
                 when { 
                     expression { env.action != null }
                 }
                 steps {
                     script {
-                        //env.BRANCH = env.ref
-                        //sh './infra/01.tf-plan.sh'
+                        env.BRANCH = env.ref
+                        sh './infra/01.tf-plan.sh'
                     }
                 }
-            }
+            }*/
         }
         post {
             always {
