@@ -77,8 +77,7 @@ pipeline {
             failure {
                 script {
                     withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
-                    sh 'curl -H \'Authorization: token $GITHUB_TOKEN\' https://api.GitHub.com/repos/$repo/statuses/$sha -H \'Content-Type: application/json\' -X POST -d \'{\\"state\\": \\"failure\\",\\"context\\": \\"continuous-integration/jenkins\\", \\"description\\": \\"Jenkins\\", \\"target_url\\": \\"https://jenkins.alexbaily.com:8080/\\"}\''
-
+                        sh 'curl -H \"Authorization: token $GITHUB_TOKEN\" https://api.GitHub.com/repos/$repo/statuses/$sha -H \'Content-Type: application/json\' -X POST -d \'{\\"state\\": \\"failure\\",\\"context\\": \\"continuous-integration/jenkins\\", \\"description\\": \\"Jenkins\\", \\"target_url\\": \\"https://jenkins.alexbaily.com:8080/\\"}\''
                     }
                 }
             }
